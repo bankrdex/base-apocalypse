@@ -1,0 +1,16 @@
+node_modules
+.vercel
+screenshots
+artifacts
+attachments
+.grok/skills
+.grok/references
+.grok/*.png
+.grok/*.log
+.grok/og-pending
+.grok/og.jpg.tmp
+.grok/status
+.project_id
+.node_modules.lock
+*.log
+.DS_Store
