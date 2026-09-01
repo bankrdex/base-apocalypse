@@ -5,7 +5,7 @@ import { Grain, SiteFooter, SiteHeader } from "@/components/frame";
 import { SignalTasks } from "@/components/signal-tasks";
 import { getListStatus, submitWallet } from "@/lib/submissions";
 import { useSignalTasks } from "@/lib/signal";
-import { parseWallet, parseXHandle, shortenWallet } from "@/lib/wallet";
+import { parseWallet, shortenWallet } from "@/lib/wallet";
 
 const STORAGE_KEY = "ba-list-wallet";
 
@@ -64,27 +64,17 @@ function Closed() {
 function ApplyForm() {
   const signal = useSignalTasks();
   const [wallet, setWallet] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [preference, setPreference] = useState<"GTD" | "WL">("WL");
   const [verified, setVerified] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [done, setDone] = useState<{
-    wallet: string;
-    handle: string;
-    preference: "GTD" | "WL";
-  } | null>(null);
+  const [done, setDone] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw) as {
-        wallet: string;
-        handle?: string;
-        preference: "GTD" | "WL";
-      };
-      if (saved.wallet && saved.handle) setDone({ ...saved, handle: saved.handle });
+      const saved = JSON.parse(raw) as { wallet?: string };
+      if (saved.wallet) setDone(saved.wallet);
     } catch {
       /* ignore */
     }
@@ -105,14 +95,9 @@ function ApplyForm() {
     setVerified(parsed.wallet);
   }
 
-  async function postDirect(input: {
-    wallet: string;
-    handle: string;
-    preference: "GTD" | "WL";
-  }) {
+  async function postDirect(address: string) {
     const body = new URLSearchParams();
-    body.set(GOOGLE_FORM.WALLET, input.wallet);
-    body.set(GOOGLE_FORM.TWITTER, `${input.handle} · ${input.preference}`);
+    body.set(GOOGLE_FORM.WALLET, address);
     await fetch(GOOGLE_FORM.ACTION, {
       method: "POST",
       mode: "no-cors",
@@ -130,30 +115,14 @@ function ApplyForm() {
       verify();
       return;
     }
-    const handle = parseXHandle(twitter);
-    if (!handle.ok) {
-      setError(handle.error);
-      return;
-    }
     setPending(true);
     setError(null);
-    const record = {
-      wallet: verified,
-      handle: handle.handle,
-      preference,
-    };
     try {
-      const result = await submitWallet({
-        data: {
-          wallet: verified,
-          twitter: handle.handle,
-          preference,
-        },
-      });
+      const result = await submitWallet({ data: { wallet: verified } });
       if (result.ok) {
-        setDone(record);
+        setDone(verified);
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ wallet: verified }));
         } catch {
           /* ignore */
         }
@@ -163,19 +132,19 @@ function ApplyForm() {
         setError("The cap has been reached. Wallets are no longer accepted.");
         return;
       }
-      await postDirect(record);
-      setDone(record);
+      await postDirect(verified);
+      setDone(verified);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ wallet: verified }));
       } catch {
         /* ignore */
       }
     } catch {
       try {
-        await postDirect(record);
-        setDone(record);
+        await postDirect(verified);
+        setDone(verified);
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ wallet: verified }));
         } catch {
           /* ignore */
         }
@@ -192,10 +161,7 @@ function ApplyForm() {
       <div className="mt-10 max-w-xl">
         <h1 className="display-slot">On the list.</h1>
         <p className="mt-8 font-body text-body text-type">
-          {shortenWallet(done.wallet)}
-        </p>
-        <p className="label mt-4">
-          {done.handle} · {done.preference}
+          {shortenWallet(done)}
         </p>
         <p className="mt-10 text-legal text-mute">
           Allocation is discretionary. Completing later tasks does not guarantee
@@ -277,64 +243,14 @@ function ApplyForm() {
         ) : null}
 
         {verified && signal.complete ? (
-          <>
-            <label className="label mt-10 block" htmlFor="twitter">
-              X username
-            </label>
-            <input
-              id="twitter"
-              className="field mt-3"
-              name="twitter"
-              inputMode="text"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              placeholder="@handle"
-              value={twitter}
-              onChange={(e) => {
-                setTwitter(e.target.value);
-                setError(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void submit();
-                }
-              }}
-            />
-
-            <p className="label mt-10">Preference</p>
-            <div className="mt-3 grid grid-cols-2 gap-0 border border-rule">
-              <button
-                type="button"
-                className="choice"
-                aria-pressed={preference === "GTD"}
-                onClick={() => setPreference("GTD")}
-              >
-                GTD
-              </button>
-              <button
-                type="button"
-                className="choice"
-                aria-pressed={preference === "WL"}
-                onClick={() => setPreference("WL")}
-              >
-                WL
-              </button>
-            </div>
-            <p className="mt-3 text-legal text-mute">
-              Preference is not a promise until it is written against a wallet.
-            </p>
-            <button
-              type="button"
-              className="btn-primary mt-10 w-full"
-              disabled={pending}
-              onClick={() => void submit()}
-            >
-              {pending ? "Submitting" : "Submit"}
-            </button>
-          </>
+          <button
+            type="button"
+            className="btn-primary mt-10 w-full"
+            disabled={pending}
+            onClick={() => void submit()}
+          >
+            {pending ? "Submitting" : "Submit"}
+          </button>
         ) : null}
 
         <p className="mt-5 text-legal text-mute">Capacity {CAP_LABEL}.</p>

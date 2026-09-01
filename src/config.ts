@@ -4,7 +4,7 @@
  * When the list hits 3,000 wallets, set APPLICATION_OPEN to false.
  *
  * GOOGLE_FORM is the only destination for submissions.
- * Wallet → entry.506336355. X handle + preference → entry.1937566451.
+ * Wallet → entry.1527254290. Nothing else is posted.
  */
 export const CONFIG = {
   APPLICATION_OPEN: true,
@@ -20,9 +20,8 @@ export const CONFIG = {
 
 export const GOOGLE_FORM = {
   ACTION:
-    "https://docs.google.com/forms/d/e/1FAIpQLScF5zZ72OEFcLokxrp7VVv-LJbp6y6uUif2Sjt_utvEh_4zHg/formResponse",
-  WALLET: "entry.506336355",
-  TWITTER: "entry.1937566451",
+    "https://docs.google.com/forms/d/e/1FAIpQLSfEIky_FeMFO_Yc1IiopfmM6Co0HNwqXXoqLnVbyWtSWFh3jw/formResponse",
+  WALLET: "entry.1527254290",
 } as const;
 
 export const SIGNAL = {

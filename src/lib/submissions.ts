@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CONFIG, GOOGLE_FORM } from "@/config";
-import { parseWallet, parseXHandle } from "@/lib/wallet";
+import { parseWallet } from "@/lib/wallet";
 
 export type ListStatus = {
   open: boolean;
@@ -9,13 +9,11 @@ export type ListStatus = {
 };
 
 export type SubmitResult =
-  | { ok: true; wallet: string; handle: string; preference: "GTD" | "WL" }
+  | { ok: true; wallet: string }
   | { ok: false; reason: "closed" | "invalid" };
 
 const submitSchema = z.object({
   wallet: z.string(),
-  twitter: z.string(),
-  preference: z.enum(["GTD", "WL"]),
 });
 
 export function getListStatus(): ListStatus {
@@ -25,14 +23,9 @@ export function getListStatus(): ListStatus {
   };
 }
 
-export async function postToGoogleForm(input: {
-  wallet: string;
-  handle: string;
-  preference: "GTD" | "WL";
-}): Promise<boolean> {
+export async function postToGoogleForm(wallet: string): Promise<boolean> {
   const body = new URLSearchParams();
-  body.set(GOOGLE_FORM.WALLET, input.wallet);
-  body.set(GOOGLE_FORM.TWITTER, `${input.handle} · ${input.preference}`);
+  body.set(GOOGLE_FORM.WALLET, wallet);
 
   const res = await fetch(GOOGLE_FORM.ACTION, {
     method: "POST",
@@ -59,21 +52,8 @@ export const submitWallet = createServerFn({ method: "POST" })
     const parsed = parseWallet(data.wallet);
     if (!parsed.ok) return { ok: false, reason: "invalid" };
 
-    const handle = parseXHandle(data.twitter);
-    if (!handle.ok) return { ok: false, reason: "invalid" };
-
-    const posted = await postToGoogleForm({
-      wallet: parsed.wallet,
-      handle: handle.handle,
-      preference: data.preference,
-    });
-
+    const posted = await postToGoogleForm(parsed.wallet);
     if (!posted) return { ok: false, reason: "invalid" };
 
-    return {
-      ok: true,
-      wallet: parsed.wallet,
-      handle: handle.handle,
-      preference: data.preference,
-    };
+    return { ok: true, wallet: parsed.wallet };
   });

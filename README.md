@@ -3,7 +3,7 @@
 Official campaign site. GTD and WL application. Cap: 3,000 wallets.
 
 Follow, like, repost, and comment on the signal post. Then submit a wallet.
-Every submission is written to the Google Form.
+Every submission is written to the Google Form. Wallet only.
 
 ## Operator
 
@@ -15,12 +15,11 @@ MAX_SUBMISSIONS    3000
 X_URL / X_HANDLE   @base_apocalypse
 TASK_URL / TASK_ID signal post
 CODE               BA-LIST (prefilled in the comment)
-GOOGLE_FORM        action URL + entry IDs
+GOOGLE_FORM        action URL + wallet entry ID
 ```
 
 When the list hits 3,000, set `APPLICATION_OPEN` to false. Apply hides.
 
 ## List
 
-Wallet → Google Form field `entry.506336355`
-X handle + GTD/WL → `entry.1937566451`
+Wallet → Google Form field `entry.1527254290`
