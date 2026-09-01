@@ -2,8 +2,8 @@
 
 Official campaign site. GTD and WL application. Cap: 3,000 wallets.
 
-Applicants submit a Base / EVM wallet on this site. There is no Google Form
-and no wallet connect.
+Follow, like, repost, and comment on the signal post. Then submit a wallet.
+Every submission is written to the Google Form.
 
 ## Operator
 
@@ -12,16 +12,15 @@ Edit `src/config.ts`:
 ```
 APPLICATION_OPEN   true while the list is open
 MAX_SUBMISSIONS    3000
-X_URL / X_HANDLE   the account to grow
-TASK_URL           paste the signal post later; leave blank until it exists
-CODE               public-post code
-SUPPLY / WINDOW    overview facts
+X_URL / X_HANDLE   @base_apocalypse
+TASK_URL / TASK_ID signal post
+CODE               BA-LIST (prefilled in the comment)
+GOOGLE_FORM        action URL + entry IDs
 ```
 
 When the list hits 3,000, set `APPLICATION_OPEN` to false. Apply hides.
 
-## Database
+## List
 
-Wallets persist in Postgres. Set `DATABASE_URL` on the host (Neon on the
-Grok deploy; add the same on Vercel if you deploy there yourself). Without
-it, submissions will not survive.
+Wallet → Google Form field `entry.506336355`
+X handle + GTD/WL → `entry.1937566451`

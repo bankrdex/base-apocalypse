@@ -244,6 +244,11 @@
   color: var(--color-ground);
 }
 
+.btn-ghost:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -533,6 +538,11 @@
   border-color: var(--color-type);
 }
 
+.field:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .choice {
   min-height: 52px;
   border: 0;
@@ -558,6 +568,23 @@
 .choice[aria-pressed="true"] {
   background: var(--color-type);
   color: var(--color-ground);
+}
+
+.form-locked {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.unlock-hint {
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--color-rule);
+  font-size: var(--text-legal);
+  letter-spacing: 0.04em;
+  color: var(--color-mute);
+}
+
+.task-done .task-num {
+  color: var(--color-type);
 }
 
 @media (max-width: 767px) {

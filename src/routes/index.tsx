@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { CAP_LABEL, CONFIG } from "@/config";
 import { Grain, SiteFooter, SiteHeader, Wordmark } from "@/components/frame";
+import { SignalTasks } from "@/components/signal-tasks";
 import { getListStatus } from "@/lib/submissions";
+import { useSignalTasks } from "@/lib/signal";
 
 export const Route = createFileRoute("/")({
   loader: () => getListStatus(),
@@ -12,7 +14,6 @@ export const Route = createFileRoute("/")({
 function Home() {
   const status = Route.useLoaderData();
   const open = status?.open ?? CONFIG.APPLICATION_OPEN;
-  const remaining = status?.remaining ?? CONFIG.MAX_SUBMISSIONS;
 
   return (
     <div className="relative min-h-dvh bg-ground text-type">
@@ -27,7 +28,7 @@ function Home() {
         <hr className="rule" />
         <Tasks open={open} />
         <hr className="rule" />
-        <ApplyTeaser open={open} remaining={remaining} />
+        <ApplyTeaser open={open} />
       </main>
       <hr className="rule" />
       <SiteFooter />
@@ -122,119 +123,51 @@ function Allocation() {
 }
 
 function Tasks({ open }: { open: boolean }) {
-  const signalReady = Boolean(CONFIG.TASK_URL);
+  const signal = useSignalTasks();
   return (
     <Chapter id="tasks">
       <ChapterHead index="03" kicker="Signal" />
       <p className="measure mt-8 text-pretty text-body text-mute">
-        Clearance, not a quest. Follow first. The signal post lands next.
+        Follow. Like. Repost. Comment. The wallet stays closed until all four
+        are marked.
       </p>
-      <ol className="mt-12">
-        <TaskRow
-          num="01"
-          action={
-            <a
-              className="btn-ghost"
-              href={CONFIG.X_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open X
-            </a>
-          }
-        >
-          Follow @{CONFIG.X_HANDLE} on X
-        </TaskRow>
-        <TaskRow
-          num="02"
-          action={
-            signalReady ? (
-              <a
-                className="btn-ghost"
-                href={CONFIG.TASK_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open post
-              </a>
-            ) : (
-              <span className="btn-ghost pointer-events-none opacity-40">Pending</span>
-            )
-          }
-        >
-          {signalReady ? (
-            <>
-              Quote or reply to the posted signal. Include the exact code{" "}
-              <span className="code-stamp">{CONFIG.CODE}</span>. Keep the post
-              public.
-            </>
-          ) : (
-            <>Signal post. Link pending. Code will be {CONFIG.CODE}.</>
-          )}
-        </TaskRow>
-        <TaskRow
-          num="03"
-          action={
-            open ? (
+      <div className="mt-12">
+        <SignalTasks {...signal} />
+      </div>
+      <ol>
+        <li className="flex flex-col gap-4 border-t border-rule py-8 last:border-b md:flex-row md:items-center md:justify-between md:gap-10">
+          <div className="flex gap-5 md:gap-8">
+            <span className="task-num pt-0.5">05</span>
+            <p className="measure text-pretty text-body leading-normal text-type">
+              Submit a verified Base / EVM wallet before the {CAP_LABEL} cap.
+            </p>
+          </div>
+          {open ? (
+            <div className="shrink-0 pl-11 md:pl-0">
               <Link to="/apply" className="btn-ghost">
                 Apply
               </Link>
-            ) : null
-          }
-        >
-          Submit a verified Base / EVM wallet before the {CAP_LABEL} cap.
-        </TaskRow>
+            </div>
+          ) : null}
+        </li>
       </ol>
-      <p className="measure mt-10 text-legal leading-normal text-mute">
-        Likes are not required and are not verifiable.
-      </p>
     </Chapter>
   );
 }
 
-function TaskRow({
-  num,
-  children,
-  action,
-}: {
-  num: string;
-  children: ReactNode;
-  action: ReactNode;
-}) {
-  return (
-    <li className="flex flex-col gap-4 border-t border-rule py-8 last:border-b md:flex-row md:items-center md:justify-between md:gap-10">
-      <div className="flex gap-5 md:gap-8">
-        <span className="task-num pt-0.5">{num}</span>
-        <p className="measure text-pretty text-body leading-normal text-type">
-          {children}
-        </p>
-      </div>
-      {action ? <div className="shrink-0 pl-11 md:pl-0">{action}</div> : null}
-    </li>
-  );
-}
-
-function ApplyTeaser({
-  open,
-  remaining,
-}: {
-  open: boolean;
-  remaining: number;
-}) {
+function ApplyTeaser({ open }: { open: boolean }) {
   return (
     <Chapter id="apply">
       <ChapterHead index="04" kicker="Entry" />
       {open ? (
         <div className="mt-10 max-w-xl">
           <p className="measure text-pretty text-body text-type">
-            Wallet on this site. Verify, then one submission.
+            Clear the signal. Then put the wallet.
           </p>
           <Link to="/apply" className="btn-primary mt-10 w-full">
             Enter
           </Link>
-          <p className="mt-5 text-legal text-mute">
-            Capacity {CAP_LABEL}. {remaining.toLocaleString("en-US")} remaining.
-          </p>
+          <p className="mt-5 text-legal text-mute">Capacity {CAP_LABEL}.</p>
         </div>
       ) : (
         <div className="mt-12 measure">
