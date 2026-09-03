@@ -47,24 +47,54 @@ function Hero({ open }: { open: boolean }) {
   return (
     <section
       id="top"
-      className="hero-screen relative flex flex-col items-center justify-center px-5 pb-28 pt-20 text-center md:pb-16 md:pt-24"
+      className="hero-screen relative flex flex-col justify-center px-5 pb-16 pt-24 md:pb-20 md:pt-24"
     >
-      <p className="label hero-enter">On Base</p>
-      <Wordmark size="hero" />
-      <p className="hero-enter-late mt-8 font-body text-body text-mute md:mt-10">
-        The last list.
-      </p>
-      <div className="hero-enter-late mt-12 flex flex-wrap items-center justify-center gap-3 md:gap-8">
-        {open ? (
-          <Link to="/apply" className="btn-primary">
-            Apply
-          </Link>
-        ) : (
-          <span className="btn-primary pointer-events-none opacity-35">Apply</span>
-        )}
-        <a className="btn-text" href="#tasks">
-          Tasks
-        </a>
+      <div className="mx-auto w-full max-w-site">
+        <div className="hero-topline hero-enter">
+          <p className="label">On Base</p>
+          <p className="label hero-topline-note">Archive 01 / 01</p>
+        </div>
+
+        <div className="hero-grid">
+          <div className="hero-lockup">
+            <Wordmark size="hero" />
+            <p className="hero-enter-late mt-7 max-w-sm font-body text-body text-mute md:mt-9">
+              The last list, kept like a signal in the dark.
+            </p>
+            <div className="hero-enter-late mt-10 flex flex-wrap items-center gap-3 md:mt-12 md:gap-8">
+              {open ? (
+                <Link to="/apply" className="btn-primary">
+                  Apply
+                </Link>
+              ) : (
+                <span className="btn-primary pointer-events-none opacity-35">Apply</span>
+              )}
+              <a className="btn-text" href="#tasks">
+                Tasks
+              </a>
+            </div>
+          </div>
+
+          <figure className="hero-story hero-enter-late">
+            <div className="hero-story-image-wrap">
+              <img
+                className="hero-story-image"
+                src="/og.jpg"
+                alt="BASE APOCALYPSE wordmark printed in warm white on a grainy black field"
+              />
+              <span className="hero-story-stamp">BA / 001</span>
+            </div>
+            <figcaption className="hero-story-caption">
+              <p className="label">Field note / 01</p>
+              <h2 className="hero-story-title">The mark stays after the noise.</h2>
+              <p className="hero-story-text">
+                This is the first artifact: a name pressed into the dark. Base is
+                the ground. Apocalypse is the deadline. Between them, the list
+                becomes a signal for the wallets that are still paying attention.
+              </p>
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </section>
   );
