@@ -73,6 +73,20 @@ export function SiteHeader({
     <header className="site-header">
       <div className="site-header-inner">
         <Wordmark size="tiny" />
+        <div className="header-showcase" aria-label="BASE APOCALYPSE NFT army showcase">
+          <span className="header-showcase-label">Army</span>
+          <div className="header-showcase-stack">
+            {[
+              ["/nft/orange-cat.png", "Orange cat soldier"],
+              ["/nft/skeleton-cowboy.png", "Skeleton cowboy"],
+              ["/nft/black-soldier.png", "Black soldier"],
+              ["/nft/white-soldier.png", "White soldier"],
+              ["/nft/crocodile.png", "Crocodile gunslinger"],
+            ].map(([src, alt]) => (
+              <img key={src} src={src} alt={alt} className="header-showcase-avatar" />
+            ))}
+          </div>
+        </div>
         <nav className="site-nav" aria-label="Sections">
           {variant === "apply" ? (
             <Link to="/" className="nav-link">
