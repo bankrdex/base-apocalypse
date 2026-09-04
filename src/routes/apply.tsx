@@ -5,13 +5,6 @@ import { Grain, SiteFooter, SiteHeader } from "@/components/frame";
 import { SignalTasks } from "@/components/signal-tasks";
 import { getListStatus, submitWallet } from "@/lib/submissions";
 import { useSignalTasks } from "@/lib/signal";
-import {
-  connectBaseWallet,
-  formatAllocation,
-  formatBaseActivity,
-  getBaseActivity,
-  type BaseActivity,
-} from "@/lib/base-activity";
 import { parseWallet, shortenWallet } from "@/lib/wallet";
 
 const STORAGE_KEY = "ba-list-wallet";
@@ -74,8 +67,6 @@ function ApplyForm() {
   const [verified, setVerified] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [checkingActivity, setCheckingActivity] = useState(false);
-  const [activity, setActivity] = useState<BaseActivity | null>(null);
   const [done, setDone] = useState<string | null>(null);
 
   useEffect(() => {
@@ -89,27 +80,7 @@ function ApplyForm() {
     }
   }, []);
 
-  async function checkWallet(address: string) {
-    setCheckingActivity(true);
-    setActivity(null);
-    setError(null);
-    try {
-      const result = await getBaseActivity(address);
-      setVerified(address);
-      setActivity(result);
-    } catch (cause) {
-      setVerified(null);
-      setError(
-        cause instanceof Error
-          ? `${cause.message} Try again or use another public Base RPC connection.`
-          : "Base activity could not be checked. Try again.",
-      );
-    } finally {
-      setCheckingActivity(false);
-    }
-  }
-
-  async function verify() {
+  function verify() {
     if (!signal.complete) {
       setError("Clear the signal first. Follow, like, repost, comment.");
       return;
@@ -117,25 +88,11 @@ function ApplyForm() {
     const parsed = parseWallet(wallet);
     if (!parsed.ok) {
       setVerified(null);
-      setActivity(null);
       setError(parsed.error);
       return;
     }
-    await checkWallet(parsed.wallet);
-  }
-
-  async function connectWallet() {
-    if (!signal.complete) {
-      setError("Clear the signal first. Follow, like, repost, comment.");
-      return;
-    }
-    try {
-      const address = await connectBaseWallet();
-      setWallet(address);
-      await checkWallet(address.toLowerCase());
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Wallet connection failed.");
-    }
+    setError(null);
+    setVerified(parsed.wallet);
   }
 
   async function postDirect(address: string) {
@@ -154,8 +111,8 @@ function ApplyForm() {
       setError("Clear the signal first. Follow, like, repost, comment.");
       return;
     }
-    if (!verified || !activity) {
-      void verify();
+    if (!verified) {
+      verify();
       return;
     }
     setPending(true);
@@ -254,61 +211,30 @@ function ApplyForm() {
           onChange={(e) => {
             setWallet(e.target.value);
             setVerified(null);
-            setActivity(null);
             setError(null);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              void verify();
+              verify();
             }
           }}
         />
-
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            className="btn-ghost w-full"
-            disabled={!signal.complete || checkingActivity}
-            onClick={() => void connectWallet()}
-          >
-            {checkingActivity ? "Checking" : "Connect Base wallet"}
-          </button>
-          <button
-            type="button"
-            className="btn-ghost w-full"
-            disabled={!signal.complete || checkingActivity}
-            onClick={() => void verify()}
-          >
-            {checkingActivity ? "Calculating" : "Check address"}
-          </button>
-        </div>
 
         {verified ? (
           <p className="mt-4 text-legal text-type">
             Verified · {shortenWallet(verified)}
           </p>
-        ) : null}
-
-        {checkingActivity ? (
-          <p className="mt-4 text-legal text-mute" role="status" aria-live="polite">
-            Reading public Base activity and calculating the allocation…
-          </p>
-        ) : null}
-
-        {activity ? (
-          <div className="allocation-result mt-8 border border-rule p-5 sm:p-7">
-            <p className="label">Your allocation</p>
-            <p className="allocation-amount mt-2">{formatAllocation(activity.allocation)}</p>
-            <p className="mt-3 text-legal text-mute">
-              Base activity: {formatBaseActivity(activity)}
-            </p>
-            <p className="mt-4 text-legal leading-normal text-mute">
-              Deterministic frontend score. Public RPC data is limited to measurable
-              Base state; the maximum allocation is 97,000.
-            </p>
-          </div>
-        ) : null}
+        ) : (
+          <button
+            type="button"
+            className="btn-ghost mt-5 w-full"
+            disabled={!signal.complete}
+            onClick={verify}
+          >
+            Verify
+          </button>
+        )}
 
         {error ? (
           <p className="mt-4 text-legal text-type" role="alert">
@@ -316,14 +242,14 @@ function ApplyForm() {
           </p>
         ) : null}
 
-        {verified && activity && signal.complete ? (
+        {verified && signal.complete ? (
           <button
             type="button"
             className="btn-primary mt-10 w-full"
             disabled={pending}
             onClick={() => void submit()}
           >
-            {pending ? "Submitting" : activity ? "Submit" : "Check allocation first"}
+            {pending ? "Submitting" : "Submit"}
           </button>
         ) : null}
 

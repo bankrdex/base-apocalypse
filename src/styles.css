@@ -789,26 +789,3 @@
     min-height: 26px;
   }
 }
-
-.allocation-result {
-  background: rgb(232 228 220 / 0.025);
-}
-
-.allocation-amount {
-  font-family: var(--font-display);
-  font-size: clamp(3.5rem, 14vw, 7rem);
-  font-weight: 800;
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-  color: var(--color-type);
-}
-
-@media (max-width: 420px) {
-  .allocation-result {
-    padding: 1rem;
-  }
-
-  .allocation-amount {
-    font-size: clamp(3rem, 19vw, 4.5rem);
-  }
-}
